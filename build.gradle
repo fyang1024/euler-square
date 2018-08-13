@@ -1,4 +1,13 @@
-buildScript {
+buildscript {
     ext.kotlin_version = '1.2.60'
+    ext.junit_version = '4.12'
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
 

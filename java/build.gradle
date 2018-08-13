@@ -1,0 +1,13 @@
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+dependencies {
+    testCompile "junit:junit:$junit_version"
+}
