@@ -1,116 +1,84 @@
 package io.threeblox.eulersquare;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
-
 public class EulerSquareSolver {
 
-    class Position {
-        int x, y;
+    private static int[] xMove = {2, 1, -1, -2, -2, -1, 1, 2};
+    private static int[] yMove = {1, 2, 2, 1, -1, -2, -2, -1};
 
-        public Position(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
+    private int width, length;
+    private int[][] solution;
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Position position = (Position) o;
-            return x == position.x &&
-                    y == position.y;
-        }
+    public EulerSquareSolver(int width, int length) {
+        this.width = width;
+        this.length = length;
+        solution = new int[length][width];
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
     }
 
-    void solve() {
-        Stack<Position> solutionStack = new Stack<>();
-        boolean[][] board = new boolean[8][8];
-        for (int i = 0; i < 4; i++) {
-            for (int j = i; j < 4; j++) {
-                Position position = new Position(i, j);
-                solutionStack.push(position);
-                board[i][j] = true;
-                search(solutionStack, board);
-            }
-        }
+    private boolean isValid(int x, int y) {
+        return x >=0 && x < length && y >= 0 && y < width && solution[x][y] == 0;
     }
 
-    void search(Stack<Position> solutionStack, boolean[][] board) {
-        if (solutionStack.size() == board.length * board[0].length) {
-            // found solution, print solution
-            System.out.println("found solution");
-        } else {
-            Set<Position> nextPosistions = getNextPosistions(solutionStack.peek(), board);
-            if (nextPosistions.isEmpty()) {
-                solutionStack.pop();
-                if (solutionStack.isEmpty()) {
-                   System.out.println("dead path");
-                }
-            } else {
-                for(Position nextPosition : nextPosistions) {
-                    solutionStack.push(nextPosition);
-                    board[nextPosition.x][nextPosition.y] = true;
-                    search(solutionStack, board);
+    private void reset() {
+        for (int i = 0; i < length; i++)
+            for (int j = 0; j < width; j++)
+                solution[i][j] = 0;
+    }
+
+    private void solve() {
+        for (int i = 0; i < length / 2 + length % 2; i++) {
+            for (int j = 0; j < width / 2 + width % 2; j++) {
+                reset();
+                solution[i][j] = 1;
+                if(!solve(i, j)) {
+                    System.out.println(String.format("No solution exists when starting from (%d, %d)", i+1, j+1));
+                } else {
+                    printSolution();
                 }
             }
-
         }
     }
 
-    Set<Position> getNextPosistions(Position currentPosition, boolean[][] board) {
-        Set<Position> nextPositions = new HashSet<>();
-        Position newPosition = new Position(currentPosition.x + 1, currentPosition.y + 2);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
+    private boolean solve(int x, int y) {
+        if (solution[x][y] == width * length) {
+            return true;
         }
-        newPosition = new Position(currentPosition.x + 1, currentPosition.y - 2);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
+        for (int i = 0; i < xMove.length; i++) {
+            int nextX = x + xMove[i];
+            int nextY = y + yMove[i];
+            if (isValid(nextX, nextY)) {
+                solution[nextX][nextY] = solution[x][y] + 1;
+                if (solve(nextX, nextY)) {
+                    return true;
+                } else {
+                    solution[nextX][nextY] = 0;
+                }
+            }
         }
-        newPosition = new Position(currentPosition.x + 2, currentPosition.y + 1);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        newPosition = new Position(currentPosition.x + 2, currentPosition.y - 1);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        newPosition = new Position(currentPosition.x - 1, currentPosition.y + 2);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        newPosition = new Position(currentPosition.x - 1, currentPosition.y - 2);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        newPosition = new Position(currentPosition.x - 2, currentPosition.y + 1);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        newPosition = new Position(currentPosition.x - 2, currentPosition.y - 1);
-        if (isValid(newPosition, board)) {
-            nextPositions.add(newPosition);
-        }
-        return nextPositions;
+        return false;
     }
 
-    boolean isValid(Position position, boolean[][] board) {
-        return position.x >= 0 && position.x < board.length
-                && position.y >= 0 && position.y < board[0].length
-                && !board[position.x][position.y];
+    private void printSolution() {
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < width; j++) {
+                System.out.print("-----");
+            }
+            System.out.println("-");
+            for (int j = 0; j < width; j++) {
+                System.out.print(solution[i][j] >= 10 ?
+                        String.format("| %d ", solution[i][j])
+                        : String.format("| %d  ", solution[i][j]));
+            }
+            System.out.println("|");
+        }
+        for (int j = 0; j < width; j++) {
+            System.out.print("-----");
+        }
+        System.out.println("-");
+        System.out.println();
     }
 
     public static void main(String[] args) {
-        new EulerSquareSolver().solve();
+        new EulerSquareSolver(8, 8).solve();
     }
-
-
 }
