@@ -79,6 +79,6 @@ public class EulerSquareSolver {
     }
 
     public static void main(String[] args) {
-        new EulerSquareSolver(10, 10).solve();
+        new EulerSquareSolver(8, 8).solve();
     }
 }
